@@ -73,19 +73,19 @@ public class AuthServiceTest {
 
     @Test
     public void login_UserNotExist(){
-        // Configuración de mocks
+        // Configuration de mocks
         String email = "nonexistent@example.com";
         LoginDto loginDto = new LoginDto(email, "password");
 
         when(userPostgreRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        // Ejecución y verificación
+        // Ejection y verification
         assertThrows(UserNotExist.class, () -> authService.login(loginDto));
     }
 
     @Test
     public void register_UserExist() {
-        // Configuración de mocks
+        // Configuration de mocks
         String email = "test@example.com";
         RegisterDto registerDto = new RegisterDto("Test", email, "password");
 
@@ -94,7 +94,7 @@ public class AuthServiceTest {
 
         when(userPostgreRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
 
-        // Ejecución y verificación
+        // Ejection y verification
         assertThrows(UserAlreadyExist.class, () -> authService.register(registerDto));
     }
 
