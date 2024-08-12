@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BookMongoRepository extends MongoRepository<BookEntity, String> {
+public interface MongoDBRepository extends MongoRepository<BookEntity, String> {
 
     @Query("{'author': {$regex: ?0, $options: 'i'}}")
     List<BookEntity> findByAuthor(String author);

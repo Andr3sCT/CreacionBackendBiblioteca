@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 @Repository
-public interface UserPostgreRepository extends JpaRepository<UserEntity, Long> {
+public interface PostgreDBRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmail(String email);
 

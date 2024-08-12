@@ -3,7 +3,7 @@ package apx.school.demo.Service;
 import apx.school.demo.Dto.BookDto;
 import apx.school.demo.Entity.BookEntity;
 import apx.school.demo.Exception.BookNotExist;
-import apx.school.demo.Repository.BookMongoRepository;
+import apx.school.demo.Repository.MongoDBRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 public class BookServiceTest {
 
     @Mock
-    private BookMongoRepository bookMongoRepository;
+    private MongoDBRepository bookMongoRepository;
 
     @InjectMocks
     private BookService bookService;

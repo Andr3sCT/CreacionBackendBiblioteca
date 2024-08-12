@@ -7,8 +7,8 @@ import apx.school.demo.Exception.BookNotExist;
 import apx.school.demo.Exception.BookNotAvailability;
 import apx.school.demo.Exception.BookNotInProperty;
 import apx.school.demo.Exception.UserNotExist;
-import apx.school.demo.Repository.BookMongoRepository;
-import apx.school.demo.Repository.UserPostgreRepository;
+import apx.school.demo.Repository.MongoDBRepository;
+import apx.school.demo.Repository.PostgreDBRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -30,10 +30,10 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock
-    private UserPostgreRepository userPostgreRepository;
+    private PostgreDBRepository postgreDBRepository;
 
     @Mock
-    private BookMongoRepository bookMongoRepository;
+    private MongoDBRepository bookMongoRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -51,7 +51,7 @@ public class UserServiceTest {
     public void testGetAll() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
-        when(userPostgreRepository.findAll()).thenReturn(List.of(userEntity));
+        when(postgreDBRepository.findAll()).thenReturn(List.of(userEntity));
 
         // Act
         var result = userService.getAll();
@@ -66,7 +66,7 @@ public class UserServiceTest {
     public void testGetMyData() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
 
         // Act
         var result = userService.getMyData();
@@ -79,7 +79,7 @@ public class UserServiceTest {
     @Test
     public void testGetMyData_UserDoesNotExist() {
         // Arrange
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotExist.class, () -> userService.getMyData());
@@ -89,7 +89,7 @@ public class UserServiceTest {
     public void testGetById() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
-        when(userPostgreRepository.findById(anyLong())).thenReturn(Optional.of(userEntity));
+        when(postgreDBRepository.findById(anyLong())).thenReturn(Optional.of(userEntity));
 
         // Act
         var result = userService.getById(1L);
@@ -102,7 +102,7 @@ public class UserServiceTest {
     @Test
     public void testGetById_UserDoesNotExist() {
         // Arrange
-        when(userPostgreRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(postgreDBRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotExist.class, () -> userService.getById(1L));
@@ -113,9 +113,9 @@ public class UserServiceTest {
         // Arrange
         UserEntity oldUser = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
         UserDto newUserDto = new UserDto(1L, "John Updated", "test@example.com", "newpassword", new HashMap<>());
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.of(oldUser));
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.of(oldUser));
         when(passwordEncoder.encode(anyString())).thenReturn("encodedpassword");
-        when(userPostgreRepository.save(any(UserEntity.class))).thenReturn(new UserEntity(1L, "John Updated", "test@example.com", "encodedpassword", new HashMap<>()));
+        when(postgreDBRepository.save(any(UserEntity.class))).thenReturn(new UserEntity(1L, "John Updated", "test@example.com", "encodedpassword", new HashMap<>()));
 
         // Act
         var result = userService.update(newUserDto);
@@ -130,7 +130,7 @@ public class UserServiceTest {
     public void testUpdate_UserDoesNotExist() {
         // Arrange
         UserDto userDto = new UserDto(1L, "John Updated", "test@example.com", "newpassword", new HashMap<>());
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotExist.class, () -> userService.update(userDto));
@@ -139,7 +139,7 @@ public class UserServiceTest {
     @Test
     public void testDelete() {
         // Arrange
-        when(userPostgreRepository.findById(anyLong())).thenReturn(Optional.of(new UserEntity()));
+        when(postgreDBRepository.findById(anyLong())).thenReturn(Optional.of(new UserEntity()));
 
         // Act
         String result = userService.delete(1L);
@@ -151,7 +151,7 @@ public class UserServiceTest {
     @Test
     public void testDelete_UserDoesNotExist() {
         // Arrange
-        when(userPostgreRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(postgreDBRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // Act & Assert
         assertThrows(UserNotExist.class, () -> userService.delete(1L));
@@ -163,8 +163,8 @@ public class UserServiceTest {
         BookEntity bookEntity = new BookEntity("book1", "Author", "Title", "Disponible");
         UserEntity userEntity = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
         when(bookMongoRepository.findById(anyString())).thenReturn(Optional.of(bookEntity));
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
-        doNothing().when(userPostgreRepository).updateMyBooks(anyString(), any(HashMap.class));
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
+        doNothing().when(postgreDBRepository).updateMyBooks(anyString(), any(HashMap.class));
         doNothing().when(bookMongoRepository).updateAvailability(anyString(), anyString());
 
         // Act
@@ -198,8 +198,8 @@ public class UserServiceTest {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
         userEntity.getMyBooks().put("book1", "Title");
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
-        doNothing().when(userPostgreRepository).updateMyBooks(anyString(), any(HashMap.class));
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
+        doNothing().when(postgreDBRepository).updateMyBooks(anyString(), any(HashMap.class));
         doNothing().when(bookMongoRepository).updateAvailability(anyString(), anyString());
 
         // Act
@@ -213,7 +213,7 @@ public class UserServiceTest {
     public void testRestoreBook_BookNotInProperty() {
         // Arrange
         UserEntity userEntity = new UserEntity(1L, "John", "test@example.com", "password", new HashMap<>());
-        when(userPostgreRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
+        when(postgreDBRepository.findByEmail(anyString())).thenReturn(Optional.of(userEntity));
 
         // Act & Assert
         assertThrows(BookNotInProperty.class, () -> userService.restoreBook("book1"));

@@ -3,7 +3,7 @@ package apx.school.demo.Service;
 import apx.school.demo.Exception.BookNotExist;
 import apx.school.demo.Dto.BookDto;
 import apx.school.demo.Entity.BookEntity;
-import apx.school.demo.Repository.BookMongoRepository;
+import apx.school.demo.Repository.MongoDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.List;
 public class BookService {
 
     @Autowired
-    private BookMongoRepository bookMongoRepository;
+    private MongoDBRepository bookMongoRepository;
 
     public List<BookDto> getAll(){
         return this.bookMongoRepository.findAll()

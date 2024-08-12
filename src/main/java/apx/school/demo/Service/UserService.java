@@ -7,8 +7,8 @@ import apx.school.demo.Exception.UserNotExist;
 import apx.school.demo.Dto.UserDto;
 import apx.school.demo.Entity.BookEntity;
 import apx.school.demo.Entity.UserEntity;
-import apx.school.demo.Repository.BookMongoRepository;
-import apx.school.demo.Repository.UserPostgreRepository;
+import apx.school.demo.Repository.MongoDBRepository;
+import apx.school.demo.Repository.PostgreDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,10 +21,10 @@ import java.util.List;
 public class UserService {
 
     @Autowired
-    private UserPostgreRepository userPostgreRepository;
+    private PostgreDBRepository postgreDBRepository;
 
     @Autowired
-    private BookMongoRepository bookMongoRepository;
+    private MongoDBRepository bookMongoRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -34,26 +34,26 @@ public class UserService {
     public void setEmail(String email){ this.email = email; }
 
     public List<UserDto> getAll(){
-        return this.userPostgreRepository.findAll()
+        return this.postgreDBRepository.findAll()
                 .stream()
                 .map(this::toDto)
                 .toList();
     }
 
     public UserDto getMyData(){
-        return this.userPostgreRepository.findByEmail(this.email)
+        return this.postgreDBRepository.findByEmail(this.email)
                 .map(this::toDto)
                 .orElseThrow(UserNotExist::new);
     }
 
     public UserDto getById(Long id){
-        UserEntity entity = this.userPostgreRepository.findById(id)
+        UserEntity entity = this.postgreDBRepository.findById(id)
                 .orElseThrow(UserNotExist::new);
         return toDto(entity);
     }
 
     public UserDto update(UserDto request){
-        UserEntity OldData = this.userPostgreRepository.findByEmail(this.email)
+        UserEntity OldData = this.postgreDBRepository.findByEmail(this.email)
                 .orElseThrow(UserNotExist::new);
 
         UserEntity NewData = new UserEntity();
@@ -62,7 +62,7 @@ public class UserService {
         NewData.setEmail(this.email);
         NewData.setPassword(passwordEncoder.encode((request.getPassword())));
         NewData.setMyBooks(OldData.getMyBooks());
-        UserEntity entity = this.userPostgreRepository.save(NewData);
+        UserEntity entity = this.postgreDBRepository.save(NewData);
         return toDto(entity);
     }
 
@@ -72,26 +72,26 @@ public class UserService {
         if (book.getAvailability().equals("No disponible")){
            throw new BookNotAvailability();
         }
-        UserEntity user = this.userPostgreRepository.findByEmail(this.email)
+        UserEntity user = this.postgreDBRepository.findByEmail(this.email)
                 .orElseThrow(UserNotExist::new);
 
         HashMap<String, String> books = user.getMyBooks();
         books.put(book.getId(), book.getTitle());
-        this.userPostgreRepository.updateMyBooks(this.email, books);
+        this.postgreDBRepository.updateMyBooks(this.email, books);
         this.bookMongoRepository.updateAvailability(book_id, "No disponible");
         return "El libro '"+book.getTitle()+"' se ha agregado a su colección";
     }
 
     public String delete(Long id){
-        this.userPostgreRepository.findById(id)
+        this.postgreDBRepository.findById(id)
                 .orElseThrow(UserNotExist::new);
 
-        this.userPostgreRepository.deleteById(id);
+        this.postgreDBRepository.deleteById(id);
         return "El usuario se elimino correctamente";
     }
 
     public String restoreBook(String book_id){
-        UserEntity user = this.userPostgreRepository.findByEmail(this.email)
+        UserEntity user = this.postgreDBRepository.findByEmail(this.email)
                 .orElseThrow(UserNotExist::new);
 
         HashMap<String, String> books = user.getMyBooks();
@@ -100,7 +100,7 @@ public class UserService {
             throw new BookNotInProperty();
         }
         books.remove(book_id);
-        this.userPostgreRepository.updateMyBooks(this.email, books);
+        this.postgreDBRepository.updateMyBooks(this.email, books);
         this.bookMongoRepository.updateAvailability(book_id, "Disponible");
         return "Has devuelto el libro '"+deletedBook+"'";
     }

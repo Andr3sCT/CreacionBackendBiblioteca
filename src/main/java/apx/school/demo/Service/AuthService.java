@@ -6,7 +6,7 @@ import apx.school.demo.Dto.auth.RegisterDto;
 import apx.school.demo.Entity.UserEntity;
 import apx.school.demo.Exception.UserAlreadyExist;
 import apx.school.demo.Exception.UserNotExist;
-import apx.school.demo.Repository.UserPostgreRepository;
+import apx.school.demo.Repository.PostgreDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class AuthService {
 
     @Autowired
-    private UserPostgreRepository userPostgreRepository;
+    private PostgreDBRepository postgreDBRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -37,7 +37,7 @@ public class AuthService {
 
     public AuthDto login(final LoginDto request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
-        UserDetails user = userPostgreRepository.findByEmail(request.getUsername())
+        UserDetails user = postgreDBRepository.findByEmail(request.getUsername())
                 .orElseThrow(UserNotExist::new);
         String token = jwtService.getToken(user);
         userService.setEmail(user.getUsername());
@@ -45,7 +45,7 @@ public class AuthService {
     }
 
     public AuthDto register(final RegisterDto request){
-        Optional<UserEntity> entity = this.userPostgreRepository.findByEmail(request.getEmail());
+        Optional<UserEntity> entity = this.postgreDBRepository.findByEmail(request.getEmail());
         if (entity.isPresent()){
             throw new UserAlreadyExist();
         }
@@ -56,7 +56,7 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setMyBooks(new HashMap<>());
 
-        userPostgreRepository.save(user);
+        postgreDBRepository.save(user);
         userService.setEmail(user.getEmail());
         return new AuthDto(this.jwtService.getToken(user));
     }

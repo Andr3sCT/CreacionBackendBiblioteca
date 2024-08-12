@@ -6,7 +6,7 @@ import apx.school.demo.Dto.auth.RegisterDto;
 import apx.school.demo.Entity.UserEntity;
 import apx.school.demo.Exception.UserAlreadyExist;
 import apx.school.demo.Exception.UserNotExist;
-import apx.school.demo.Repository.UserPostgreRepository;
+import apx.school.demo.Repository.PostgreDBRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 public class AuthServiceTest {
 
     @Mock
-    private UserPostgreRepository userPostgreRepository;
+    private PostgreDBRepository postgreDBRepository;
 
     @Mock
     private JwtService jwtService;
@@ -58,7 +58,7 @@ public class AuthServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(email);
 
-        when(userPostgreRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
+        when(postgreDBRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
         when(jwtService.getToken(any(UserDetails.class))).thenReturn("jwt-token");
 
         // Ejecución del método login
@@ -77,7 +77,7 @@ public class AuthServiceTest {
         String email = "nonexistent@example.com";
         LoginDto loginDto = new LoginDto(email, "password");
 
-        when(userPostgreRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(postgreDBRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // Ejection y verification
         assertThrows(UserNotExist.class, () -> authService.login(loginDto));
@@ -92,7 +92,7 @@ public class AuthServiceTest {
         UserEntity userEntity = new UserEntity();
         userEntity.setEmail(email);
 
-        when(userPostgreRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
+        when(postgreDBRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
 
         // Ejection y verification
         assertThrows(UserAlreadyExist.class, () -> authService.register(registerDto));
@@ -104,7 +104,7 @@ public class AuthServiceTest {
         String email = "newuser@example.com";
         RegisterDto registerDto = new RegisterDto("New User", email, "password");
 
-        when(userPostgreRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(postgreDBRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
         when(jwtService.getToken(any(UserDetails.class))).thenReturn("jwt-token");
 
@@ -114,7 +114,7 @@ public class AuthServiceTest {
         // Verificación
         assertNotNull(authDto);
         assertEquals("jwt-token", authDto.getToken());
-        verify(userPostgreRepository).save(any(UserEntity.class));
+        verify(postgreDBRepository).save(any(UserEntity.class));
         verify(userService).setEmail(email);
     }
 }

@@ -1,7 +1,7 @@
 package apx.school.demo.Config;
 
 import apx.school.demo.Exception.UserNotExist;
-import apx.school.demo.Repository.UserPostgreRepository;
+import apx.school.demo.Repository.PostgreDBRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class ApplicationConfig {
 
     @Autowired
-    private UserPostgreRepository userRepository;
+    private PostgreDBRepository userRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
